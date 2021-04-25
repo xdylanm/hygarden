@@ -92,11 +92,11 @@ void loop() {
             // turns the GPIOs on and off
             if (header.indexOf("GET /led/on") >= 0) {
               Serial.println("LED on");
-              output5State = "on";
+              ledState = "on";
               digitalWrite(BUILTIN_LED, LOW);
             } else if (header.indexOf("GET /led/off") >= 0) {
               Serial.println("LED off");
-              output5State = "off";
+              ledState = "off";
               digitalWrite(BUILTIN_LED, HIGH);
             } 
             
