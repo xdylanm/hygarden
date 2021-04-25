@@ -13,4 +13,6 @@ Automated hydration for a garden
 ## Blink
 Confirm that the board can be programmed. 
 
-
+## Wifi
+Initial testing of connection to wifi network. Monitor for simple requests to toggle the LED.
+Reference: https://randomnerdtutorials.com/esp8266-web-server/
