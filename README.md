@@ -9,4 +9,8 @@ Automated hydration for a garden
 * 60W AC power adapter (12VDC/5A)
 * RFP30N0LE 30A/60V logic level NMOS
 
+# Projects
+## Blink
+Confirm that the board can be programmed. 
+
 
