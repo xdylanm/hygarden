@@ -1,5 +1,6 @@
 # Private
 secrets.*
+*.crt
 
 # Prerequisites
 *.d
