@@ -16,3 +16,8 @@ Confirm that the board can be programmed.
 ## Wifi
 Initial testing of connection to wifi network. Monitor for simple requests to toggle the LED.
 Reference: https://randomnerdtutorials.com/esp8266-web-server/
+
+## Sensors
+Initial testing of BME280 and soil moisture sensor. No Wifi. Adds configuration
+(e.g. solenoid mode, sample intervals, moisture threshold) which serializes
+and deserializes with LittleFS. 

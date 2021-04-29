@@ -1,0 +1,24 @@
+{
+  "topic": "/uninitialized",
+  "uuid": "0c2c86dc-a892-11eb-bcbc-0242ac130002",
+  "sensors": {
+    "BME280": {
+      "count":1,
+      "enabled":true
+    },
+    "SoilMoisture": {
+      "count":1,
+      "enabled":true,
+      "threshold":0.55
+    }
+  },
+  "solenoid": {
+    "mode":"off",
+    "min_on":0,
+    "max_on":600
+  },
+  "interval": {
+    "sample":5,
+    "report":20
+  }
+}
