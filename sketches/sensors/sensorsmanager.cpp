@@ -39,9 +39,9 @@ bool SensorsManager::probe()
     sample_data_.humidity_ += bme_.readHumidity();
     sample_data_.moisture_ += float(analogRead(analog_input_pin_))/1023.0F;
     sample_count_++;
-    Serial.print("Sampled sensors ("); 
-    Serial.print(sample_count_);
-    Serial.println(")");
+    //Serial.print("Sampled sensors ("); 
+    //Serial.print(sample_count_);
+    //Serial.println(")");
   }
 
   bool const report_ready = interval_elapsed(report_interval_);

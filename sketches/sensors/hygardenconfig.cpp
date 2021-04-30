@@ -74,9 +74,8 @@ String HyGardenConfig::uuidToText(uint8_t const* uuid)
   return String(msg);
 }
 
-void HyGardenConfig::serialize(JsonObject& obj) 
+void HyGardenConfig::serialize(JsonObject& obj, bool const include_state /*=false*/) 
 {
-  obj.clear();
   obj["topic"] = topic;
   auto uuidTxt = uuidToText(uuid);
   obj["uuid"] = uuidTxt;
@@ -86,6 +85,9 @@ void HyGardenConfig::serialize(JsonObject& obj)
   auto bme_obj = sensors_obj.createNestedObject("BME280");
   bme_obj["enabled"] = bme.enabled;
   bme_obj["count"] = 1;
+  if (include_state) {
+    bme_obj["connected"] = bme.connected;
+  }
   auto soil_obj = sensors_obj.createNestedObject("SoilMoisture");
   soil_obj["count"] = soil_moisture.count;
   soil_obj["enabled"] = soil_moisture.enabled;
@@ -96,6 +98,9 @@ void HyGardenConfig::serialize(JsonObject& obj)
   solenoid_obj["mode"] = solenoidModeToText(solenoid.mode);
   solenoid_obj["min_on"] = solenoid.min_on;
   solenoid_obj["max_on"] = solenoid.max_on;
+  if (include_state) {
+    solenoid_obj["state"] = solenoid.state;
+  }
 
   // interval
   auto interval_obj = obj.createNestedObject("interval");

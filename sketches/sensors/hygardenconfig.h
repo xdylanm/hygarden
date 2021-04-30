@@ -19,7 +19,7 @@ struct HyGardenConfig
   static void uuidFromText(char const* txt, uint8_t* uuid);
   static String uuidToText(uint8_t const* uuid);
 
-  void serialize(JsonObject& obj);
+  void serialize(JsonObject& obj, bool include_state=false);
   void unserialize(JsonObject const& obj);
 
   String topic;  

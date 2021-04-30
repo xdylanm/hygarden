@@ -27,9 +27,6 @@ void blinky(int T_high, int T_low, int N) {
 
 
 #define MAX_BUF_LEN 512
-StaticJsonDocument<MAX_BUF_LEN> json_config;
-StaticJsonDocument<MAX_BUF_LEN> json_data;
-StaticJsonDocument<MAX_BUF_LEN> json_input;
 char buffer[MAX_BUF_LEN];
 int msg_pos;
 
@@ -60,6 +57,7 @@ void setup() {
     Serial.println(F("Failed to load config file for read, config reset"));
   } else {
     Serial.println("Loading config...");
+    StaticJsonDocument<MAX_BUF_LEN> json_config;
     DeserializationError error = deserializeJson(json_config, hf);
     hf.close();
     if (error) {
@@ -71,7 +69,7 @@ void setup() {
 
       // echo
       Serial.println(F("Loaded config"));
-      StaticJsonDocument<512> echo_doc;
+      StaticJsonDocument<MAX_BUF_LEN> echo_doc;
       JsonObject root = echo_doc.to<JsonObject>(); 
       config.serialize(root);
       serializeJsonPretty(root,Serial);
@@ -88,6 +86,7 @@ void loop() {
   if (config.bme.connected) {
     if (monitor.probe()) {
       // report ready
+      StaticJsonDocument<200> json_data;
       json_data["temperature"] = monitor.report().temperature_;
       json_data["pressure"] = monitor.report().pressure_;
       json_data["humidity"] = monitor.report().humidity_;
@@ -111,28 +110,45 @@ void loop() {
       buffer[msg_pos] = '\0';
       //Print the message (or do other things)
       Serial.println(buffer);
-      json_input.clear();
+      StaticJsonDocument<MAX_BUF_LEN> json_input;
       DeserializationError error = deserializeJson(json_input, buffer, msg_pos);
       if (error) {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
       } else {
-        //JsonObject obj = json_input.as<JsonObject>();
-        if (auto mode = json_input["solenoid_mode"].as<const char*>()) {
-          Serial.print("Solenoid: ");
-          Serial.println(mode);
-          config.solenoid.mode = HyGardenConfig::solenoidModeFromText(mode);
-          if (config.solenoid.mode < 2) {
-            config.solenoid.state = config.solenoid.mode;
+        if (auto action = json_input["action"].as<const char*>()) {
+          if (strcmp(action,"read") == 0) {
+            StaticJsonDocument<MAX_BUF_LEN> json_output;
+            JsonObject doc = json_output.to<JsonObject>();
+            config.serialize(doc, true);  // include state
+            serializeJsonPretty(doc,Serial);
+            Serial.println();
+          } else if (strcmp(action, "write") == 0) {
+            auto const old_interval = config.interval;
+            config.unserialize(json_input.as<JsonObject>());
+            if (config.solenoid.mode < 2) {
+              config.solenoid.state = config.solenoid.mode;
+            }
+            if (old_interval.sample != config.interval.sample) {
+              monitor.set_sample_interval(config.interval.sample*1000);
+            }
+            if (old_interval.report != config.interval.report) {
+              monitor.set_report_interval(config.interval.report*1000);
+            }
+          } else if (strcmp(action, "store") == 0) {
+            File hf = LittleFS.open("/config.json","w");
+            if (!hf) {
+              Serial.println(F("Failed to open config file for write, config not stored"));
+            } else {
+              StaticJsonDocument<MAX_BUF_LEN> json_output;
+              JsonObject doc = json_output.to<JsonObject>();
+              config.serialize(doc, true);  // include state
+              serializeJson(doc,hf);
+              hf.close();
+              Serial.println(F("Updated config.json"));
+            }
           }
         }
-        if (auto threshold = json_input["threshold"].as<float>()) {
-          Serial.print("Threshold: ");
-          Serial.println(threshold);
-          config.soil_moisture.threshold = threshold;
-          
-        }
-       
       }
 
       //Reset for the next message
