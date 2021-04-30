@@ -4,14 +4,20 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
+#include "soilmoistureprobegroup.h"
 #include "sensorsmanager.h"
 #include "hygardenconfig.h"
 
 #define SOLENOID_GPIO 0
+#define AMUX_EN_GPIO 14
+#define AMUX_S0_GPIO 15
+#define AMUX_S1_GPIO 13
+#define AMUX_S2_GPIO 12
 
 // Global objects
+SoilMoistureProbeGroup soil_probe_group (1,AMUX_S0_GPIO,AMUX_S1_GPIO,AMUX_S2_GPIO,AMUX_EN_GPIO,A0);
 Adafruit_BME280 bme_sensor;
-SensorsManager monitor(5000,20000,bme_sensor,A0);
+SensorsManager monitor(5000,20000,bme_sensor,soil_probe_group);
 HyGardenConfig config;
 
 // N times: off (T_low), on (T_high)
@@ -32,7 +38,14 @@ int msg_pos;
 
 void setup() {
   pinMode(SOLENOID_GPIO, OUTPUT);
+  digitalWrite(SOLENOID_GPIO, LOW);
+  
   pinMode(BUILTIN_LED, OUTPUT);
+  
+  pinMode(AMUX_EN_GPIO, OUTPUT);
+  pinMode(AMUX_S0_GPIO, OUTPUT);
+  pinMode(AMUX_S1_GPIO, OUTPUT);
+  pinMode(AMUX_S2_GPIO, OUTPUT);
   
   Serial.begin(115200);
   delay(10);
@@ -66,6 +79,9 @@ void setup() {
     } else {
       JsonObject config_obj = json_config.as<JsonObject>();
       config.unserialize(config_obj);
+
+      soil_probe_group.set_probe_count(config.soil_moisture.count);
+      soil_probe_group.set_enabled(config.soil_moisture.enabled);
 
       // echo
       Serial.println(F("Loaded config"));
@@ -135,6 +151,9 @@ void loop() {
             if (old_interval.report != config.interval.report) {
               monitor.set_report_interval(config.interval.report*1000);
             }
+            soil_probe_group.set_probe_count(config.soil_moisture.count);
+            soil_probe_group.set_enabled(config.soil_moisture.enabled);
+
           } else if (strcmp(action, "store") == 0) {
             File hf = LittleFS.open("/config.json","w");
             if (!hf) {

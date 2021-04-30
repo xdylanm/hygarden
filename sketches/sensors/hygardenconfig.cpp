@@ -128,7 +128,7 @@ void HyGardenConfig::unserialize(JsonObject const& obj)
       soil_moisture.count = (sm_count <= MAX_SOIL_MOISTURE_PROBES ? sm_count : MAX_SOIL_MOISTURE_PROBES);
     }
     if (sm_obj.containsKey("enabled")) {
-      soil_moisture.count = sm_obj["enabled"].as<bool>();
+      soil_moisture.enabled = sm_obj["enabled"].as<bool>();
     }
     if (sm_obj.containsKey("threshold")) {
       soil_moisture.threshold = sm_obj["threshold"].as<float>(); 

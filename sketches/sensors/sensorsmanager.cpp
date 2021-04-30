@@ -24,9 +24,9 @@ SensorsManager::SensorsManager(
   uint32_t sample_interval, 
   uint32_t report_interval,
   Adafruit_BME280& bme,
-  int ain_pin /* = A0 */) :
+  SoilMoistureProbeGroup& soil_moisture_group) :
   sample_interval_(sample_interval), report_interval_(report_interval),
-  sample_count_(0), bme_(bme), analog_input_pin_(ain_pin)
+  sample_count_(0), bme_(bme), soil_moisture_group_(soil_moisture_group)
 {
   reset();    
 }
@@ -37,7 +37,7 @@ bool SensorsManager::probe()
     sample_data_.temperature_ += bme_.readTemperature();
     sample_data_.pressure_ += bme_.readPressure() / 100.0F;
     sample_data_.humidity_ += bme_.readHumidity();
-    sample_data_.moisture_ += float(analogRead(analog_input_pin_))/1023.0F;
+    sample_data_.moisture_ += soil_moisture_group_.read();
     sample_count_++;
     //Serial.print("Sampled sensors ("); 
     //Serial.print(sample_count_);

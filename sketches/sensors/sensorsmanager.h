@@ -4,6 +4,8 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include "soilmoistureprobegroup.h"
+
 
 struct SensorsData {
   SensorsData(); 
@@ -20,7 +22,7 @@ class SensorsManager
 {
 public:
   SensorsManager(uint32_t sample_interval, uint32_t report_interval,
-    Adafruit_BME280& bme, int ain_pin = A0);
+    Adafruit_BME280& bme, SoilMoistureProbeGroup& soil_moisture_group);
 
   void reset();
   bool probe();
@@ -47,7 +49,7 @@ private:
   bool interval_elapsed(Interval& i);
 
   Adafruit_BME280& bme_;
-  int analog_input_pin_;
+  SoilMoistureProbeGroup& soil_moisture_group_;
 }; 
 
 
