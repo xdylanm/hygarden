@@ -35,7 +35,7 @@ bool SensorsManager::probe()
     sample_data_.temperature_ += bme_.readTemperature();
     sample_data_.pressure_ += bme_.readPressure() / 100.0F;
     sample_data_.humidity_ += bme_.readHumidity();
-    sample_data_.moisture_ += soil_moisture_group_.read();
+    sample_data_.moisture_ += 1.0F - soil_moisture_group_.read(); // invert: more capacitance = more moisture
     sample_count_++;
     //Serial.print("Sampled sensors ("); 
     //Serial.print(sample_count_);
@@ -73,17 +73,20 @@ void SensorsManager::reset() {
 
 bool SensorsManager::interval_elapsed(Interval& i)
 {
-  uint32_t now = millis();
+  uint32_t tnow = millis();
   uint32_t elapsed = 0;
-  if (now < i.start_) {  // clock rolled over
+  if (tnow < i.start_) {  // clock rolled over
     elapsed = std::numeric_limits<uint32_t>::max() - i.start_;
-    elapsed += now + 1;
+    elapsed += tnow + 1;
   } else {
-    elapsed = now - i.start_;
+    elapsed = tnow - i.start_;
   }
   
   if (elapsed >= i.dt_) {
     i.start_ += i.dt_;   // ok to roll over
+    if (i.start_ < tnow) {
+      i.start_ = tnow;
+    }
     return true;
   } 
   return false;

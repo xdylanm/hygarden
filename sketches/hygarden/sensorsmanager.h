@@ -50,7 +50,7 @@ private:
  
   bool interval_elapsed(Interval& i);
 
-  Adafruit_BME280 bme_;
+  Adafruit_BME280 bme_;   
   SoilMoistureProbeGroup soil_moisture_group_;
 }; 
 

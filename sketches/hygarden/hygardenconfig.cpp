@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 HyGardenConfig::HyGardenConfig() 
-  : topic("/uninitialized")
+  : topic("/uninitialized"), active(false)
 {
   for (int i = 0; i < 16; ++i) {
     uuid[i] = 0x00;
@@ -10,7 +10,34 @@ HyGardenConfig::HyGardenConfig()
 }
 
 
-int HyGardenConfig::solenoidModeFromText(char const* mode) {
+HyGardenConfig::HyGardenConfig(HyGardenConfig const& o) 
+  : topic(o.topic), active(o.active), bme(o.bme), 
+    soil_moisture(o.soil_moisture), solenoid(o.solenoid), interval(o.interval)
+{
+  for (int i = 0; i < 16; ++i) {
+    uuid[i] = o.uuid[i];
+  }
+}
+
+
+HyGardenConfig& HyGardenConfig::operator=(HyGardenConfig const& o) 
+{
+  if (this == &o) {
+    return *this;
+  }
+  topic = o.topic;
+  for (int i = 0; i < 16; ++i) {
+    uuid[i] = o.uuid[i];
+  }
+  active = o.active;
+  bme = o.bme;
+  soil_moisture = o.soil_moisture;
+  solenoid = o.solenoid;
+  interval = o.interval;
+}
+
+int HyGardenConfig::solenoidModeFromText(char const* mode) 
+{
   if (strcmp(mode, "off") == 0) {
     return 0;
   } else if (strcmp(mode, "on") == 0) {
@@ -21,7 +48,8 @@ int HyGardenConfig::solenoidModeFromText(char const* mode) {
   return -1;
 }
 
-String HyGardenConfig::solenoidModeToText(int const mode) {
+String HyGardenConfig::solenoidModeToText(int const mode) 
+{
   if (mode == 0) {
     return String("off");
   } else if (mode == 1) {
@@ -30,6 +58,37 @@ String HyGardenConfig::solenoidModeToText(int const mode) {
     return String("auto");
   }
   return String("off");
+}
+
+int HyGardenConfig::moistureProbeOpFromText(char const* op)
+{
+  if (strcmp(op, "none") == 0) {
+    return 0;
+  } else if (strcmp(op, "avg") == 0) {
+    return 1;
+  } else if (strcmp(op, "min") == 0) {
+    return 2;
+  } else if (strcmp(op, "max") == 0) {
+    return 3;
+  }
+  return -1;
+}
+
+String HyGardenConfig::moistureProbeOpToText(int const op)
+{
+  switch (op) {
+  case 0:
+    return String("none");
+  case 1:
+    return String("avg");
+  case 2:
+    return String("min");
+  case 3:
+    return String("max");
+  default:
+    break;
+  }
+  return String("none");
 }
 
 namespace {
@@ -79,6 +138,7 @@ void HyGardenConfig::serialize(JsonObject& obj, bool const include_state /*=fals
   obj["topic"] = topic;
   auto uuidTxt = uuidToText(uuid);
   obj["uuid"] = uuidTxt;
+  obj["active"] = active;
   
   // sensors
   auto sensors_obj = obj.createNestedObject("sensors");
@@ -92,6 +152,8 @@ void HyGardenConfig::serialize(JsonObject& obj, bool const include_state /*=fals
   soil_obj["count"] = soil_moisture.count;
   soil_obj["enabled"] = soil_moisture.enabled;
   soil_obj["threshold"] = soil_moisture.threshold;
+  soil_obj["operation"] = moistureProbeOpToText(soil_moisture.op);
+  soil_obj["select"] = soil_moisture.selected_probe;
   
   // solenoid
   auto solenoid_obj = obj.createNestedObject("solenoid");
@@ -117,6 +179,10 @@ void HyGardenConfig::unserialize(JsonObject const& obj)
   if (auto in_id = obj["uuid"].as<char const*>()) {
     uuidFromText(in_id, uuid);
   }
+  if (obj.containsKey("active")) {
+    active = obj["active"].as<bool>();
+  }
+  
   // sensors
   if (obj["sensors"]["BME280"].containsKey("enabled")) {
     bme.enabled = obj["sensors"]["BME280"]["enabled"].as<bool>();
@@ -131,7 +197,22 @@ void HyGardenConfig::unserialize(JsonObject const& obj)
       soil_moisture.enabled = sm_obj["enabled"].as<bool>();
     }
     if (sm_obj.containsKey("threshold")) {
-      soil_moisture.threshold = sm_obj["threshold"].as<float>(); 
+      float const t = sm_obj["threshold"].as<float>(); 
+      if (t >= 0.0F && t <= 1.0F) {
+        soil_moisture.threshold = t;
+      }
+    }
+    if (auto op = sm_obj["operation"].as<char const*>()) {
+      int const iop = moistureProbeOpFromText(op);
+      if (op >= 0) {
+        soil_moisture.op = iop;
+      }
+    }
+    if (sm_obj.containsKey("select")) {
+      int const sel = sm_obj["select"];
+      if (sel >= 0 && sel < soil_moisture.count) {
+        soil_moisture.selected_probe = sel;
+      }
     }
   }
   // solenoid

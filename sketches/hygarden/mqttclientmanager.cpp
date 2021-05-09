@@ -3,7 +3,7 @@
 MqttClientManager* MqttClientManager::instance_ = nullptr;
 
 MqttClientManager::MqttClientManager() : 
-  conn_(WLAN_PASS, WLAN_PASS), 
+  conn_(WLAN_SSID, WLAN_PASS), 
   mqtt_(&(conn_.wifi_client()), MQTT_SERVER, MQTT_SERVERPORT)
 {
 

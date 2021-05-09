@@ -12,9 +12,14 @@ struct HyGardenConfig
 {
 
   HyGardenConfig();
+  HyGardenConfig(HyGardenConfig const& o);
+  HyGardenConfig& operator=(HyGardenConfig const& rhs);
   
   static int solenoidModeFromText(char const* mode);
   static String solenoidModeToText(int const mode);
+
+  static int moistureProbeOpFromText(char const* op);
+  static String moistureProbeOpToText(int const op);
 
   static void uuidFromText(char const* txt, uint8_t* uuid);
   static String uuidToText(uint8_t const* uuid);
@@ -33,7 +38,8 @@ struct HyGardenConfig
 
   String topic;  
   uint8_t uuid[16];
-
+  bool active;
+  
   struct BME280Config {
     BME280Config() : enabled (true), connected(false) {}
     bool enabled;
@@ -41,10 +47,12 @@ struct HyGardenConfig
   } bme;
 
   struct SoilMoistureConfig {
-    SoilMoistureConfig() : count(1), enabled(true), threshold(0.5) {}
+    SoilMoistureConfig() : count(1), enabled(true), threshold(0.5), op(0), selected_probe(0) {}
     int count;
     bool enabled;
     float threshold;
+    int op;
+    int selected_probe;
   } soil_moisture;
   
   struct SolenoidConfig {

@@ -7,8 +7,9 @@ class SoilMoistureProbeGroup
 {
   public:
     static int const MAX_PROBE_COUNT; 
+    enum ReduceOp { NONE, AVERAGE, MIN, MAX, NUM_OPS };
   
-    SoilMoistureProbeGroup(int probe_count);
+    SoilMoistureProbeGroup(int probe_count, ReduceOp op = AVERAGE);
 
     void set_pins(int pin_s0, int pin_s1, int pin_s2, int pin_nen, int pin_ain);
     
@@ -18,13 +19,23 @@ class SoilMoistureProbeGroup
     void set_probe_count(int count);
     int get_probe_count() const;
 
-    float read(int iprobe = -1) const;
-    
+    void set_op(int op);
+    void set_op(ReduceOp op);
+    ReduceOp get_op() const;
+
+    void set_selected_probe(int iprobe);
+    int get_selected_probe() const;
+
+    float read() const;
 
   private:
     void select(int iprobe) const;
 
     int probe_count_;
+
+    ReduceOp op_;
+    int selected_probe_;
+    
     int pin_s0_;
     int pin_s1_;
     int pin_s2_;

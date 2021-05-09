@@ -1,6 +1,7 @@
 {
   "topic": "/environment",
-  "uuid": "07a75168-6cdf-4333-a548-aae1a9549b16",
+  "active" : false,
+  "uuid": "3b431b26-6b20-4ad7-960a-45e4e18e7675",
   "sensors": {
     "BME280": {
       "count":1,
@@ -9,7 +10,9 @@
     "SoilMoisture": {
       "count":1,
       "enabled":true,
-      "threshold":0.55
+      "threshold":0.55,
+      "operation":"avg",
+      "select":0
     }
   },
   "solenoid": {

@@ -42,10 +42,10 @@ bool ConnectionManager::load_certs()
   Serial.println(); 
   Serial.println("Loading certificates...");
   
-  if (!LittleFS.begin()) {
+  /*if (!LittleFS.begin()) {
     Serial.println(F("Failed to mount the file system."));
     return false;
-  }
+  }*/
   
   // CA certificate
   File hf = LittleFS.open(CA_CERT_FILE,"r");
