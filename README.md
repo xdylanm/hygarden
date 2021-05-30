@@ -183,6 +183,8 @@ The endpoint will publish information about its sensors to /environment in a mes
 
 The dashboard is implemented in Node-RED. 
 
+![dashboard](./dashboard/dashboard_screenshot.png)
+
 #### Notes
 
 * When setting schedule, use correct short-form names for days in comma separated list (e.g. Su, Mo)
