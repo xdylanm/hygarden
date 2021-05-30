@@ -1,12 +1,13 @@
 #ifndef hygarden_config_h_
 #define hygarden_config_h_
 
+#include "weekschedule.h"
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
 #define MAX_SOIL_MOISTURE_PROBES 8 // analog mux has 8 channels
-
-
+#define MAX_CONFIG_LEN 2048
 
 struct HyGardenConfig 
 {
@@ -57,10 +58,11 @@ struct HyGardenConfig
   
   struct SolenoidConfig {
     SolenoidConfig() : mode(0), state(0), min_on(0), max_on(600) {}
-    int mode;   //0-off, 1-on, 2-auto
+    int mode;   //0-off, 1-on, 2-auto, 3-schedule
     int state;  //0-closed, 1-open
     uint32_t min_on;
     uint32_t max_on;
+    WeekSchedule schedule;
   } solenoid;
 
   struct IntervalConfig {

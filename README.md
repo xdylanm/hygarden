@@ -57,7 +57,26 @@ The endpoint uses a persistent configuration for state and behavior, which is st
     "mode":"off",
     "state":"open",
     "min_on":0,
-    "max_on":600
+    "max_on":600, 
+    "schedule" {
+      "tz_offset" : 0,
+      "Su" : {
+      	"enabled" : false,
+      	"start" : [0,0,0,0],
+    	"end" : [0,0,0,0]
+  	  },
+	  "Mo" : {
+        "enabled" : false,
+      	"start" : [0,0,0,0],
+    	"end" : [0,0,0,0]
+  	  },  
+      //...
+	  "Sa" : {
+        "enabled" : false,
+      	"start" : [0,0,0,0],
+    	"end" : [0,0,0,0]
+  	  }  
+    }
   },
   "interval": {
     "sample":5,
@@ -79,9 +98,14 @@ Usage notes
   * operation can be "none", "avg", "min", or "max". 
   * select is a probe identifier from 0 to count-1. If operation is "none", this probe value is reported/used, otherwise select is ignored. 
 * solenoid
-  * mode: on|off|auto
+  * mode: on|off|auto|schedule
   * state: open|closed, read-only
   * min_on, max_on: time in seconds for minimum and maximum duration that the valve will be opened
+  * schedule: start and end times in minutes from midnight (e.g. 6:00am = 360) for each day of the week
+    * a daily schedule includes 4 possible time slots for start and stop and can be enabled/disabled
+    * to update a single time, use -1 for the remaining entries, e.g. [-1,-1,360,-1]
+    * to remove a time, set start=stop
+    * times are stored as a local time on the remote client using tz_offset (in minutes) to convert
 * interval
   * sample: time in seconds between sensors samples (for averaging)
   * report: time in seconds between publications to /status 
@@ -133,6 +157,8 @@ A write action will update the endpoint's configuration according the the remain
 }
 ```
 
+Write buffering is somewhat limited, so prefer writing partial/minimal updates.
+
 #### Store
 
 A store action will trigger the endpoint to write its config back to flash.
@@ -153,11 +179,27 @@ The endpoint will publish information about its sensors to /environment in a mes
 }
 ```
 
+## Dashboard
+
+The dashboard is implemented in Node-RED. 
+
+#### Notes
+
+* When setting schedule, use correct short-form names for days in comma separated list (e.g. Su, Mo)
+  * only 3 at a time, otherwise the receive buffer is exceeded
+* Make sure that the server/docker container has the correct timezone for local time conversion
+  * in the shell, the command `date` should provide the right local time zone
+
+## TODO
 
 
-### Todo
-* (med) Implement min and max times for solenoid open
-* (med) Monitor water flow/total on time
+
+* (med) Implement logging
+  * Monitor water flow/total on time
+  * Monitor restarts, time sync requests
+* (med) Implement min and max times for solenoid open in auto mode
+* (med) Add setting to adjust range/scaling for probes
+* (low) push notification when solenoid state changes
 * (low) Enable topic setting for environment
 * (low) add an action to reload from storage (i.e. reset settings)
 * ~~(med) Implement min/max/average for soil moisture~~

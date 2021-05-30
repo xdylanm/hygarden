@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define MAX_DISCOVERY_KEY_LEN 32
-#define MAX_BUF_LEN 768
+#define MAX_BUF_LEN 1024
 
 struct MessageManagerImpl;
 class Adafruit_MQTT_Client;

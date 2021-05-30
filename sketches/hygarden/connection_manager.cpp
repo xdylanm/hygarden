@@ -1,9 +1,9 @@
 #include "connection_manager.h"
 #include "LittleFS.h"
-#include <time.h>
+
 
 ConnectionManager::ConnectionManager(const char* ssid, const char* password)
-  : m_ssid(ssid), m_password(password)
+  : m_ssid(ssid), m_password(password), m_last_sync_time(0)
 {
 
   
@@ -20,7 +20,7 @@ int8_t ConnectionManager::initialize()
   }
   
   // set clock
-  if (!set_clock()) {
+  if (!sync_clock()) {
     return WL_CONNECT_FAILED;
   }
 
@@ -117,7 +117,7 @@ int8_t ConnectionManager::connect()
   return WiFi.waitForConnectResult();
 }
 
-bool ConnectionManager::set_clock() 
+bool ConnectionManager::sync_clock() 
 {
   Serial.println(); 
   Serial.println("Acquiring current time via NTP...");
@@ -137,6 +137,10 @@ bool ConnectionManager::set_clock()
   gmtime_r(&now, &timeinfo);
   Serial.print("Current time: ");
   Serial.println(asctime(&timeinfo));
+
+  if (safety_count < MAX_SAFETY_COUNT) {
+    m_last_sync_time = now;
+  }
 
   return (safety_count < MAX_SAFETY_COUNT);
 }

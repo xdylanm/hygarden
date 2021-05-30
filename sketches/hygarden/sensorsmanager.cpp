@@ -35,7 +35,7 @@ bool SensorsManager::probe()
     sample_data_.temperature_ += bme_.readTemperature();
     sample_data_.pressure_ += bme_.readPressure() / 100.0F;
     sample_data_.humidity_ += bme_.readHumidity();
-    sample_data_.moisture_ += 1.0F - soil_moisture_group_.read(); // invert: more capacitance = more moisture
+    sample_data_.moisture_ += soil_moisture_group_.get_enabled() ? 1.0F - soil_moisture_group_.read() : 0; // invert: more capacitance = more moisture
     sample_count_++;
     //Serial.print("Sampled sensors ("); 
     //Serial.print(sample_count_);

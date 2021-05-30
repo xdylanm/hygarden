@@ -2,6 +2,9 @@
 secrets.*
 *.crt
 
+# build
+build/
+
 # Prerequisites
 *.d
 

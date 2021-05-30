@@ -158,12 +158,15 @@ void MessageManager::on_control(
     Serial.println(action);
     // parse action
     if (strcmp(action,"read") == 0) {
-      StaticJsonDocument<MAX_BUF_LEN> json_output;
+      DynamicJsonDocument json_output(MAX_CONFIG_LEN);
       JsonObject doc = json_output.to<JsonObject>();
       config.serialize(doc, true);  // include state
       
-      char output[MAX_BUF_LEN];
-      serializeJson(doc,output);
+      char* output = new char[MAX_CONFIG_LEN];
+      for (int i = 0; i < MAX_CONFIG_LEN; ++i) {
+        output[i] = '\0';        
+      }
+      serializeJson(doc,  output, MAX_CONFIG_LEN);
       
       //Serial.println(output);
       
@@ -172,6 +175,7 @@ void MessageManager::on_control(
       } else {
         reset_keep_alive();
       }
+      delete output;
     } else if (strcmp(action, "write") == 0) {
       auto const old_config = config;
       config.unserialize(json_input.as<JsonObject>());
@@ -195,7 +199,7 @@ void MessageManager::on_control(
       if (!hf) {
         Serial.println(F("Failed to open config file for write, config not stored"));
       } else {
-        StaticJsonDocument<MAX_BUF_LEN> json_output;
+        DynamicJsonDocument json_output(MAX_CONFIG_LEN);
         JsonObject doc = json_output.to<JsonObject>();
         config.serialize(doc, false);  // don't include state
         serializeJson(doc,hf);

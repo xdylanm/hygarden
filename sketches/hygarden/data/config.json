@@ -1,15 +1,15 @@
 {
   "topic": "/environment",
   "active" : false,
-  "uuid": "3b431b26-6b20-4ad7-960a-45e4e18e7675",
+  "uuid": "2007ee75-d6a8-465f-8df9-73ad8ca2553d",
   "sensors": {
     "BME280": {
       "count":1,
       "enabled":true
     },
     "SoilMoisture": {
-      "count":1,
-      "enabled":true,
+      "count":0,
+      "enabled":false,
       "threshold":0.55,
       "operation":"avg",
       "select":0
@@ -18,7 +18,44 @@
   "solenoid": {
     "mode":"off",
     "min_on":0,
-    "max_on":600
+    "max_on":600,
+    "schedule": {
+      "Su":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "Mo":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "Tu":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "We":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "Th":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "Fr":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      },
+      "Sa":{
+        "enabled" : false,
+        "start" : [0,0,0,0],
+        "stop" : [0,0,0,0]
+      }
+    }
   },
   "interval": {
     "sample":5,

@@ -4,6 +4,8 @@
 
 #include "ESP8266WiFi.h"
 
+#include <time.h>
+
 class ConnectionManager
 {
 public:
@@ -12,11 +14,14 @@ public:
   bool load_certs();
   int8_t initialize();
   WiFiClientSecure& wifi_client() { return m_client; }
+
+  bool sync_clock();
+  time_t last_sync_time() { return m_last_sync_time; }
   
 protected:
 
   int8_t connect();
-  bool set_clock();
+  
   
 private:
   const char* m_ssid;
@@ -26,6 +31,8 @@ private:
   BearSSL::X509List m_ca_cert;
   BearSSL::X509List m_client_cert;
   BearSSL::PrivateKey m_client_key;
+
+  time_t m_last_sync_time;
   
 };
 

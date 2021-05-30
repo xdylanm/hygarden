@@ -6,7 +6,7 @@
 #include "messagemanager.h"
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 4
+#define VERSION_MINOR 5
 
 #define SOLENOID_GPIO 0
 #define AMUX_EN_GPIO 14
@@ -28,7 +28,7 @@ void load_config()
   }
   
   Serial.println("Loading config...");
-  StaticJsonDocument<MAX_BUF_LEN> json_config;
+  DynamicJsonDocument json_config(MAX_CONFIG_LEN);
   DeserializationError error = deserializeJson(json_config, hf);
   hf.close();
   if (error) {
@@ -41,7 +41,7 @@ void load_config()
 
     // echo
     Serial.println(F("Loaded config"));
-    StaticJsonDocument<MAX_BUF_LEN> echo_doc;
+    DynamicJsonDocument echo_doc(MAX_CONFIG_LEN);
     JsonObject root = echo_doc.to<JsonObject>(); 
     config.serialize(root);
     serializeJsonPretty(root,Serial);
@@ -116,6 +116,16 @@ void loop()
       msg.publish_sensor_data(config, monitor);
       if (config.solenoid.mode == 2) { // auto
         config.solenoid.state = (monitor.report().moisture_ < config.soil_moisture.threshold);
+      }
+    }
+    if (config.solenoid.mode == 3) { // schedule
+      config.solenoid.state = config.solenoid.schedule.active(); 
+      if (config.solenoid.schedule.last_expired()) {  //
+        Serial.println("Last scheduled day expired..."); 
+        auto* client = MqttClientManager::instance();
+        if ( client->conn().sync_clock() ) {
+          config.solenoid.schedule.update_clock(client->conn().last_sync_time());
+        }
       }
     }
   }

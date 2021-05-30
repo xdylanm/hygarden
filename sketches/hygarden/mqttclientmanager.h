@@ -24,6 +24,7 @@ class MqttClientManager
     void blink_builtin(int T_high, int T_low, int N);  
 
     Adafruit_MQTT_Client& mqtt_client() { return mqtt_; }
+    ConnectionManager& conn() { return conn_; }
   private:
 
     ConnectionManager conn_;

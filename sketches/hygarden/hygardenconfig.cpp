@@ -44,6 +44,8 @@ int HyGardenConfig::solenoidModeFromText(char const* mode)
     return 1;
   } else if (strcmp(mode, "auto") == 0) {
     return 2;
+  } else if (strcmp(mode, "schedule") ==0) {
+    return 3;
   }
   return -1;
 }
@@ -56,6 +58,8 @@ String HyGardenConfig::solenoidModeToText(int const mode)
     return String("on");
   } else if (mode == 2) {
     return String("auto");
+  } else if (mode == 3) {
+    return String("schedule");
   }
   return String("off");
 }
@@ -160,6 +164,8 @@ void HyGardenConfig::serialize(JsonObject& obj, bool const include_state /*=fals
   solenoid_obj["mode"] = solenoidModeToText(solenoid.mode);
   solenoid_obj["min_on"] = solenoid.min_on;
   solenoid_obj["max_on"] = solenoid.max_on;
+  auto schedule_obj = solenoid_obj.createNestedObject("schedule");
+  solenoid.schedule.serialize(schedule_obj);
   if (include_state) {
     solenoid_obj["state"] = solenoid.state;
   }
@@ -226,6 +232,10 @@ void HyGardenConfig::unserialize(JsonObject const& obj)
     }
     if (sol_obj.containsKey("max_on")) {
       solenoid.max_on = sol_obj["max_on"].as<uint32_t>();
+    }
+    auto sched_obj = sol_obj["schedule"].as<JsonObject>();
+    if (!sched_obj.isNull()) {
+      solenoid.schedule.unserialize(sched_obj);
     }
   }
   // Intervals
