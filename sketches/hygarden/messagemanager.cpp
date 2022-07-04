@@ -224,6 +224,7 @@ void MessageManager::publish_sensor_data(
   json_data["pressure"] = monitor.report().pressure_;
   json_data["humidity"] = monitor.report().humidity_;
   json_data["moisture"] = monitor.report().moisture_;
+  json_data["solenoid"] = config.solenoid.state;
 
   char output[MAX_BUF_LEN];
   serializeJson(json_data, output);
